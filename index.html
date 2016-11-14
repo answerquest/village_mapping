@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="Maharashtra village mapping in R : ">
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Maharashtra village mapping in R</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/craigdsouza/MH_village_mapping_R">View on GitHub</a>
+
+          <h1 id="project_title">Maharashtra village mapping in R</h1>
+          <h2 id="project_tagline"></h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/craigdsouza/MH_village_mapping_R/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/craigdsouza/MH_village_mapping_R/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1>
+<a id="background" class="anchor" href="#background" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Background</h1>
+
+<h2>
+<a id="datasets-we-have" class="anchor" href="#datasets-we-have" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Datasets we have:</h2>
+
+<p><strong>1. 2011 District Census handbook (DCHB) Maharashtra</strong> [xlsx and csv format]<br>
+The census has published district census handbooks available openly online which contains information on hundreds of variables (demographic, social, economic, access to water, sanitation, health, education, ICT, transport etc) for all of Maharashtra's approximately 44000 villages.  </p>
+
+<p>You can go to this <a href="http://www.censusindia.gov.in/2011census/dchb/DCHB.html">link</a> and click on Maharashtra, village amenities to get the large excelsheet for all of Maharashtra (72mb) or download a csv for Maharashtra (38mb) or single district wise csv (&lt;3mb) from this google drive <a href="https://docs.google.com/a/datameet.org/folderview?id=0B56AIvhxWGQXVFhWal92Y0EySlE&amp;usp=drive_web">link</a></p>
+
+<p><strong>2. Census Code Lookup Tables</strong> [csv format]<br>
+The Census codes for villages in India have not remained the same in going from census 2001 to 2011. The coding scheme was changed and lookup tables of 2001 codes and their corresponding 2011 codes are accessible on the Govt of India egov platform via this <a href="https://egovstandards.gov.in/mapping_land_region_codification">link</a>. Note that this egov site is often problematic, alternatively you can go to this google drive <a href="https://docs.google.com/a/datameet.org/folderview?id=0B56AIvhxWGQXVFhWal92Y0EySlE&amp;usp=drive_web">link</a> for the same file</p>
+
+<p><strong>3. Village Boundaries for Maharashtra</strong> [shapefile format and their attribute tables in csv format]<br>
+We have two versions of this shapefile and two versions of their attribute tables. Both were obtained from Bhuvan Panchayat, by accessing their WFS endpoint via using the gdal library.</p>
+
+<ul>
+<li><p>Version 1: 
+The first one has approximately 44,000 villages, it has only 2001 codes: district, sub-district, village. It does not have village names, or any 2011 codes. Hence the problem. We cannot easily append 2011 census data to this file to prepare a map.</p></li>
+<li><p>Version 2: 
+The second file has both 2001 and 2011 codes, district, sub-district and village and also village names. However it shows approximately 48,000 villages, many more than those existing in the 2011 DCHB. </p></li>
+</ul>
+
+<h1>
+<a id="objectives" class="anchor" href="#objectives" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Objectives</h1>
+
+<h4>
+<a id="study-both-the-shapefile-attribute-tables" class="anchor" href="#study-both-the-shapefile-attribute-tables" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Study both the shapefile attribute tables</h4>
+
+<ul>
+<li>
+<p>Study version 1 and see how closely it compares with the 2011 DCHB, which can be considered the authentic source for number and names of villages</p>
+
+<ul>
+<li>Are there missing villages? </li>
+<li>Are there extra villages?</li>
+<li>Any missing/incorrect values for the 2001 codes</li>
+</ul>
+</li>
+<li>
+<p>Append 2011 codes from the census code lookup tables to the shapefile attribute table v1 and then observe</p>
+
+<ul>
+<li>How well do they match?</li>
+</ul>
+</li>
+<li>
+<p>Study version 2 and see how closely it compares with the 2011 DCHB.</p>
+
+<ul>
+<li>Answer questions such as are there missing villages? </li>
+<li>Are there extra villages?</li>
+<li>Any missing/incorrect values for the 2001/2011 codes?</li>
+<li>How is it that we find 48,000 villages instead of 44,000?</li>
+</ul>
+</li>
+</ul>
+
+<h4>
+<a id="prepare-sample-maps" class="anchor" href="#prepare-sample-maps" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Prepare sample maps</h4>
+
+<p>Append the 2011 DCHB data to create thematic visualizations. These visualizations will show us spatial trends for any of the census variables we want.</p>
+
+<h4>
+<a id="prepare-a-web-map" class="anchor" href="#prepare-a-web-map" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Prepare a web map</h4>
+
+<p>More to be discussed on how this is to be done</p>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Maharashtra village mapping in R maintained by <a href="https://github.com/craigdsouza">craigdsouza</a></p>
+        <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
