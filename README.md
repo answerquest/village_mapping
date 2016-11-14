@@ -1,7 +1,7 @@
 # Village Mapping for Maharashtra
 #### An exercise to quality check the Maharashtra village shapefiles and produce metadata along with a webapp for visualization
 
-![](images/Maharashtra_villages.png)
+![](/images/Maharashtra_villages.png)
 
 # Background
 ## Datasets we have:
