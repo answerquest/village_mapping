@@ -1,0 +1,271 @@
+---
+title: "Preparing Village Maps of Maharashtra - Documentation"
+author: "Datameet Pune"
+date: "31 August 2016"
+output: html_document
+---
+
+```{r set-options, echo=FALSE, cache=FALSE}
+options(width = 100)
+```
+
+
+![](Maharashtra_villages.png)
+
+# Background
+## Datasets we have:
+**1. 2011 District Census handbook (DCHB) Maharashtra** [xlsx and csv format]  
+The census has published district census handbooks available openly online which contains information on hundreds of variables (demographic, social, economic, access to water, sanitation, health, education, ICT, transport etc) for all of Maharashtra's approximately 44000 villages.  
+
+You can go to this [link](http://www.censusindia.gov.in/2011census/dchb/DCHB.html) and click on Maharashtra, village amenities to get the large excelsheet for all of Maharashtra (72mb) or download a csv for Maharashtra (38mb) or single district wise csv (<3mb) from this google drive [link](https://docs.google.com/a/datameet.org/folderview?id=0B56AIvhxWGQXVFhWal92Y0EySlE&usp=drive_web)
+
+**2. Census Code Lookup Tables** [csv format]  
+The Census codes for villages in India have not remained the same in going from census 2001 to 2011. The coding scheme was changed and lookup tables of 2001 codes and their corresponding 2011 codes are accessible on the Govt of India egov platform via this [link](https://egovstandards.gov.in/mapping_land_region_codification). Note that this egov site is often problematic, alternatively you can go to this google drive [link](https://docs.google.com/a/datameet.org/folderview?id=0B56AIvhxWGQXVFhWal92Y0EySlE&usp=drive_web) for the same file
+
+**3. Village Boundaries for Maharashtra** [shapefile format and their attribute tables in csv format]  
+We have two versions of this shapefile and two versions of their attribute tables. Both were obtained from Bhuvan Panchayat, by accessing their WFS endpoint via using the gdal library.
+
+* Version 1: 
+The first one has approximately 44,000 villages, it has only 2001 codes: district, sub-district, village. It does not have village names, or any 2011 codes. Hence the problem. We cannot easily append 2011 census data to this file to prepare a map.
+
+* Version 2: 
+The second file has both 2001 and 2011 codes, district, sub-district and village and also village names. However it shows approximately 48,000 villages, many more than those existing in the 2011 DCHB. 
+
+# Objectives
+####Study both the shapefile attribute tables
+* Study version 1 and see how closely it compares with the 2011 DCHB, which can be considered the authentic source for number and names of villages
+    + Are there missing villages? 
+    + Are there extra villages?
+    + Any missing/incorrect values for the 2001 codes
+
+* Append 2011 codes from the census code lookup tables to the shapefile attribute table v1 and then observe
+    + How well do they match?
+
+* Study version 2 and see how closely it compares with the 2011 DCHB.
+    + Answer questions such as are there missing villages? 
+    + Are there extra villages?
+    + Any missing/incorrect values for the 2001/2011 codes?
+    + How is it that we find 48,000 villages instead of 44,000?
+
+####Prepare sample maps 
+Append the 2011 DCHB data to create thematic visualizations. These visualizations will show us spatial trends for any of the census variables we want.
+
+#### Prepare a web map
+More to be discussed on how this is to be done
+
+# Process
+###Load the required packages
+```{r packages, message=FALSE, warning=FALSE}
+library(readr)
+library(data.table)
+library(dplyr)
+library(ggplot2)
+library(VennDiagram)
+```
+  
+
+
+### 1. District Census Handbook (DCHB 2011)
+#### Read in the file and View its structure
+```{r dchb}
+# Read it in selecting only id variables
+names_dchb <-names(fread("DCHB_Village_Release_2700.csv",nrows = 0))
+names_dchb_sub <-names_dchb[c(1:8,24)]
+dchb <- fread("DCHB_Village_Release_2700.csv",select = c(names_dchb_sub))
+
+# View structure of dchb
+str(dchb)
+# dchb has 43665 observations in total
+```
+#### Exploratory analysis: duplicates and missing values
+```{r dchb-check-dup-na}
+#Any NA values in the village codes?
+sum(is.na(dchb$`Village Code`))
+
+# Any duplicate values in village code?
+sum(duplicated(dchb$`Village Code`))
+```
+#### Summarizing: Count of talukas and villages in each district
+```{r dchb-dist-village-count}
+# Count of total talukas and villages per district
+dchb_vill_per_dist <- dchb %>% group_by(`District Name`) %>% summarise(talukas=n_distinct(`Sub District Name`),villages=n())
+head(dchb_vill_per_dist)
+write.csv(dchb_vill_per_dist,"dcbh_vill_per_dist.csv",row.names = FALSE)
+```
+#### Summarizing: Count of villages in each taluka
+```{r dchb-subdist-village-count}
+# Plot of total villages per district
+ggplot(dchb_vill_per_dist)+geom_bar(mapping = aes(x=`District Name`, y = villages),stat = "identity") + theme(axis.text.x=element_text(angle=90))
+
+# Count of total villages per taluka
+dchb_vill_per_taluka <- dchb %>% group_by(`District Name`,`Sub District Name`) %>% summarise(Sub_district_code=unique(`Sub District Code`),villages=n())
+head(dchb_vill_per_taluka)
+write.csv(dchb_vill_per_taluka,"dcbh_vill_per_taluka.csv",row.names = FALSE)
+```
+#### Summarizing: District and Sub-district, Name - Code tables (2011)
+```{r dchb-code-tables}
+# We also create District and Sub district code tables for future reference
+dstcodes<-dchb %>% group_by(`District Code`) %>% summarise(District_Name=unique(`District Name`))
+head(dstcodes)
+write.csv(dstcodes,"dchb_dstcode_tables.csv",row.names = FALSE)
+
+subdstcodes<-dchb %>% group_by(`Sub District Code`) %>% summarise(Sub_District_Name = unique(`Sub District Name`))
+head(subdstcodes)
+write.csv(subdstcodes,"dchb_subdstcode_tables.csv",row.names = FALSE)
+```  
+
+## 2. Census Code lookup (Only needed if we use Shape v1)
+#### Read in the file and View its structure
+```{r cclookup}
+# Read in the file
+cclookup <- fread("village_2011_2001_27.csv")
+
+# View structure of cclookup
+str(cclookup)
+# cclookup has 43943 observations in total
+```
+#### Exploratory analysis: duplicates and missing values
+```{r cclookup-check-dup-na}
+#Any NA values in the village codes 2011?
+sum(is.na(cclookup$village_code_2011))
+
+# Any duplicate values in village code 2011?
+sum(duplicated(cclookup$village_code_2011))
+```
+#### Exploratory analysis: villages that split up since 2001
+```{r cclookup-find-merged-villages}
+# Find duplicate values in village code 2001 to find merged villages
+cclookup_dup_2001 <- cclookup[which(duplicated(cclookup$village_code_2001)),]
+# This code is incomplete
+```
+#### Summarizing: Count of talukas and villages in each district
+``` {r cclookup-dist-village-count}
+# Lers take a look at talukas and villages per district
+cclook_vill_per_dist <- cclookup %>% group_by(district_code_2011) %>% summarise(talukas=n_distinct(sub_district_code_2011),villages=n())
+head(cclook_vill_per_dist)
+```
+#### Summarizing: Count of villages in each taluka
+``` {r cclookup-subdist-village-count}
+# Lers take a look at villages per taluka
+cclook_vill_per_taluka <- cclookup %>% group_by(district_code_2011,sub_district_code_2011) %>% summarise(villages=n())
+head(cclook_vill_per_taluka)
+```
+#### Comparison: CCLookup and DCHB pictorially
+```{r cclookup-Venn-2011-codes}
+# Compare DCHB village codes with CCLookup village codes (2011)
+# length(setdiff(dchb$`Village Code`,cclookup$village_code_2011))
+# Answer: 3 villages from DCHB are missing in CCLookup
+write.csv(setdiff(dchb$`Village Code`,cclookup$village_code_2011),"exclusive_dchb_missing_cclookup.csv",row.names = FALSE)
+
+# Compare cclookup village codes with DCHB village codes (2011)
+# length(setdiff(cclookup$village_code_2011,dchb$`Village Code`))
+# Answer: 281 villages from CCLookup are missing in DCHB
+write.csv(setdiff(cclookup$village_code_2011,dchb$`Village Code`),"exclusive_cclookup_missing_dchb.csv",row.names = FALSE)
+
+# View the same pictorially with a Venn Diagram
+grid.newpage()
+draw.pairwise.venn(area1 = nrow(dchb), area2 = nrow(cclookup), cross.area = length(intersect(dchb$`Village Code`,cclookup$village_code_2011)), category = c("2011 codes DCHB","2011 Codes CCLookup"),scaled = FALSE, cat.pos = c(0,0))
+```
+#### Comparison: CCLookup and DCHB with a table - Taluka wise
+```{r cclookup-dchb-table-compare}
+# Does this match with DCHB 2011? We need to use the dstcode and subdstcode tables we created earlier
+# Merge dstcodes lookup with cclook_vill_per_dist and save result in a comparison file
+cclook_and_dchb_diff<- merge(subdstcodes,cclook_vill_per_taluka, by.x = 'Sub District Code', by.y = 'sub_district_code_2011')
+cclook_and_dchb_diff <- merge(cclook_and_dchb_diff,dchb_vill_per_taluka,by.x = 'Sub District Code', by.y = 'Sub_district_code')
+cclook_and_dchb_diff <- cclook_and_dchb_diff [,c(3,5,1,2,4,7)]
+names(cclook_and_dchb_diff) <- c("District Code","District Name","Sub District Code","Sub District Name","Villages_cclookup","Villages_dchb")
+cclook_and_dchb_diff$Diff <- cclook_and_dchb_diff$Villages_cclookup - cclook_and_dchb_diff$Villages_dchb
+head (cclook_and_dchb_diff)
+write.csv(cclook_and_dchb_diff,"cclook_and_dchb_diff.csv",row.names = FALSE)
+```
+
+### 3. Shapefile Version 1
+#### Read in the file and View its structure
+```{r shapev1}
+# Read in the file
+shapev1 <- fread("MH_Village_shapefile_attributes_v1.csv")
+
+# View structure of shapev1
+str(shapev1)
+# So shapev1 has 43,897 villages, but these are 2001 villages. How many villages existed in 2001 according to cclookup?
+```
+#### Exploratory analysis: duplicates and missing values (2001)
+```{r shapev1-check-dup-na}
+#Any NA values in the village codes?
+sum(is.na(shapev1$vlgcd2001))
+
+# Any duplicate values in village code?
+sum(duplicated(shapev1$vlgcd2001,incomparables = NA))
+```
+#### Merge Census 2011 Village Codes and Names
+```{r shapev1-merge}
+# Merge Census 2011 codes into shapev1 by referring to cclookup. Keep all observations from shapev1
+shapev1_merged <- merge(x=shapev1,y=cclookup,by.x = 'vlgcd2001',by.y = 'village_code_2001',all.x = TRUE)
+
+# TO BE COMPLETED!
+```
+#### Summarizing: Count of talukas and villages in each district
+#### Comparison: Shapev1 and DCHB pictorially
+``` {r shapev1-DCHB}
+# View the overlap with DCHB pictorially with a Venn Diagram
+grid.newpage()
+n_12 = length(intersect(dchb$`Village Code`,cclookup$village_code_2011))
+n_23 = length(intersect(cclookup$village_code_2011,unique(na.exclude(shapev1_merged$village_code_2011))))
+n_13 = length(intersect(dchb$`Village Code`,unique(na.exclude(shapev1_merged$village_code_2011))))
+n_123 = length(intersect(intersect(dchb$`Village Code`,cclookup$village_code_2011), unique(na.exclude(shapev1_merged$village_code_2011))))
+
+draw.triple.venn(area1 = nrow(dchb), area2 = nrow(cclookup), area3 = length(unique(na.exclude(shapev1_merged$village_code_2011))), n12 = n_12, n23 = n_23, n13 = n_13, 
+    n123 = n_123, category = c("DCHB", "CCLookup", "Shapev1-merged"), lty = "blank", 
+    fill = c("blue", "green", "red"), scaled = FALSE, cat.pos = c(0,0,0), rotation.degree = 180)
+```
+
+### 4. Shapefile Version 2
+#### Read in the file and View its structure
+```{r shapev2, message=FALSE, warning=FALSE}
+# Read in the file
+shapev2 <- fread("MH_Village_shapefile_attributes_v2.csv")
+shapev2$gpcode <- replace(shapev2$gpcode,which(shapev2$gpcode=="<Null>"),"")
+shapev2$gpcode <- as.integer(shapev2$gpcode)
+
+# View structure of shapev2
+str(shapev2)
+```
+#### Exploratory analysis: duplicates and missing values (2011)
+```{r shapev2-check-dup-na}
+#Any NA values in the village codes?
+sum(is.na(shapev2$vlgcd2011))
+
+# Any duplicate values in village code?
+sum(duplicated(shapev2$vlgcd2011))
+```
+#### Summarizing: Count of talukas and villages in each district
+```{r shapev2-dist-vill-count}
+# Do count based on unique codes
+```
+#### Compare ShapeV2 with DCHB pictorially: Uniques only
+``` {r shapev2-DCHB}
+# View the overlap with DCHB pictorially with a Venn Diagram
+grid.newpage()
+n_12 = length(intersect(dchb$`Village Code`,cclookup$village_code_2011))
+n_23 = length(intersect(cclookup$village_code_2011,unique(na.exclude(shapev2$vlgcd2011))))
+n_13 = length(intersect(dchb$`Village Code`,unique(na.exclude(shapev2$vlgcd2011))))
+n_123 = length(intersect(intersect(dchb$`Village Code`,cclookup$village_code_2011), unique(na.exclude(shapev2$vlgcd2011))))
+
+draw.triple.venn(area1 = nrow(dchb), area2 = nrow(cclookup), area3 = length(unique(na.exclude(shapev2$vlgcd2011))), n12 = n_12, n23 = n_23, n13 = n_13, 
+    n123 = n_123, category = c("DCHB", "CCLookup", "Shapev2"), lty = "blank", 
+    fill = c("blue", "green", "yellow"), scaled = FALSE, cat.pos = c(0,0,0), rotation.degree = 180)
+```
+#### Compare ShapeV2 with DCHB pictorially: Counting duplicates as well
+``` {r shapev2-DCHB-dup}
+# View the overlap with DCHB pictorially with a Venn Diagram
+# Incorrect as of now
+grid.newpage()
+n_12 = length(intersect(dchb$`Village Code`,cclookup$village_code_2011))
+n_23 = length(intersect(cclookup$village_code_2011,na.exclude(shapev2$vlgcd2011)))
+n_13 = length(intersect(dchb$`Village Code`,na.exclude(shapev2$vlgcd2011)))
+n_123 = length(intersect(intersect(dchb$`Village Code`,cclookup$village_code_2011), na.exclude(shapev2$vlgcd2011)))
+
+draw.triple.venn(area1 = nrow(dchb), area2 = nrow(cclookup), area3 = length(unique(na.exclude(shapev2$vlgcd2011))), n12 = n_12, n23 = n_23, n13 = n_13, 
+    n123 = n_123, category = c("DCHB", "CCLookup", "Shapev2"), lty = "blank", 
+    fill = c("blue", "green", "yellow"), scaled = FALSE, cat.pos = c(0,0,0), rotation.degree = 180)
+```
