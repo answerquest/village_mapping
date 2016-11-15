@@ -18,7 +18,7 @@
         <header class="inner">
           <a id="forkme_banner" href="https://github.com/craigdsouza/MH_village_mapping_R">View on GitHub</a>
 
-          <h1 id="project_title">Maharashtra village mapping in R</h1>
+          <h1 id="project_title">Maharashtra village mapping</h1>
           <h2 id="project_tagline"></h2>
 
             <section id="downloads">
@@ -31,12 +31,27 @@
     <!-- MAIN CONTENT -->
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
-        <p>View the Markdown as it currently stands at this <a href="https://craigdsouza.github.io/MH_village_mapping_R/Maharashtra_Village_Mapping.html">link</a></p>
-        <h1>
-<a id="background" class="anchor" href="#background" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Background</h1>
-
-<h2>
-<a id="datasets-we-have" class="anchor" href="#datasets-we-have" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Datasets we have:</h2>
+      <p><strong>View our Web Map <a href="https://bnamita.github.io/Village_Mapping_v2/"> here </a> and its code <a href="https://github.com/bnamita/Village_Mapping_v2">here</a><br>
+      View the R Markdown as it currently stands at this <a href="https://craigdsouza.github.io/village_mapping_Rcode/Maharashtra_Village_Mapping.html">link</a></strong></p>
+      <img src="images/Maharashtra_villages.PNG" width="600">
+      <h2> 1. The Idea </h2>
+        <p>This project by the <a href="http://www.datameet.org" target="blank">Datameet</a> Pune group has set out a goal to make village level spatial data analysis more accessible.
+        <br>Imagine.. not being limited to coarse taluka or district level data but being able to explore spatial patterns and temporal
+        trends with the census village as the unit of analysis. What if we could understand how a village compares to its neighbouring villages
+        in population, social composition, economic status, nature of agriculture, soil, physical infrastructure and many other factors. What
+        if maps allowed us to understand precisely which villages fall under which assembly constituencies? What could this mean for political
+        accountability? What if we could capture real time village level trends with crowdsourced data for more effective reporting? Could this 
+        complement and help overcome limitations of mainstream media coverage of rural development..</p>
+        
+        <h2>
+<a id="background" class="anchor" href="#background" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>2. The Background</h2>
+        <p> To put together good village level maps we needed just two things: village boundaries in a geospatial data format and village level data.<br>
+        We set out with the goal of taking village level boundaries made available by <a href ="http://www.bhuvan-panchayat.nrsc.gov.in" target="blank">
+        Bhuvan Panchayat</a> the Government of India's spatial data portal for rural development. For village level data, the most easily accessible dataset
+        was the Census Districts Handbooks. For more details on both these, see below.
+        
+        <h4>
+<a id="datasets-we-have" class="anchor" href="#datasets-we-have" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Datasets we have:</h4>
 
 <p><strong>1. 2011 District Census handbook (DCHB) Maharashtra</strong> [xlsx and csv format]<br>
 The census has published district census handbooks available openly online which contains information on hundreds of variables (demographic, social, economic, access to water, sanitation, health, education, ICT, transport etc) for all of Maharashtra's approximately 44000 villages.  </p>
@@ -56,57 +71,46 @@ The first one has approximately 44,000 villages, it has only 2001 codes: distric
 The second file has both 2001 and 2011 codes, district, sub-district and village and also village names. However it shows approximately 48,000 villages, many more than those existing in the 2011 DCHB. </p></li>
 </ul>
 
-<h1>
-<a id="objectives" class="anchor" href="#objectives" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Objectives</h1>
 
-<h4>
-<a id="study-both-the-shapefile-attribute-tables" class="anchor" href="#study-both-the-shapefile-attribute-tables" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Study both the shapefile attribute tables</h4>
+        <h2> 3. The Process</h2>
+        <p> The Datameet Pune group consists of about 15-20 volunteers with widely varying skillsets, in data analysis and visualization and also
+        volunteers associated with different non-profit organisations who do grounded work in rural development. 
+        Through <a href="www.meetup.com/DataMeet-Pune/" target="blank">regular meetups</a> they have collaborated and put together their skills 
+        to develop a better understanding of rural issues through this data.</p> The main tasks undertaken were..
+        
+        <h5> Generating meta-data </h5>
+        <p> Effectively and reliably using the village maps requires performing a quality check on them. 
+        Since very little meta-data was available with these boundary files this was important. We sought to answer questions such as are all
+        villages accounted for, are any missing, any duplicated? Are the villages located in the correct talukas and districts? etc.
+        To help answer these questions we worked with the open source softwares R and QGIS, and developed a few R scripts for this.
+        View the R Markdown as it currently stands at this <a href="https://craigdsouza.github.io/village_mapping/Metadata.html">link</a></p>
+        
+        <h5> Developing web maps </h5>
+        <p>Besides this we also developed a web map, using Leaflet to give users a feel of what the maps make possible. The web maps use Census 2011 village level data.
+        View the web map <a href="https://bnamita.github.io/Village_Mapping_v2/"> here </a> and its code <a href="https://github.com/bnamita/Village_Mapping_v2">here</a></p>
+        
+        <h2> 4. Plans going ahead </h2>
+        <p>
+        Major plans going ahead are to improve on the R scripts and web maps and also outreach to publicize the maps widely. More specifically..
+        <ul>
+        <li> Include 2001 census variables in the web maps as well</li>
+        <li> Get users familiar with the <strong><a href="http://tinyurl.com/dmpune17916" target="blank">tracking sheet</a></strong> so they can report errors </li>
+        <li> Think about ways to display multiple variables e.g. with simple logical/math operations</li>
+        <li> Focus on making these maps available in Marathi. </li>
+        This is still a work in progress, we welcome anyone who wishes to contribute. 
+        </p>
 
-<ul>
-<li>
-<p>Study version 1 and see how closely it compares with the 2011 DCHB, which can be considered the authentic source for number and names of villages</p>
-
-<ul>
-<li>Are there missing villages? </li>
-<li>Are there extra villages?</li>
-<li>Any missing/incorrect values for the 2001 codes</li>
-</ul>
-</li>
-<li>
-<p>Append 2011 codes from the census code lookup tables to the shapefile attribute table v1 and then observe</p>
-
-<ul>
-<li>How well do they match?</li>
-</ul>
-</li>
-<li>
-<p>Study version 2 and see how closely it compares with the 2011 DCHB.</p>
-
-<ul>
-<li>Answer questions such as are there missing villages? </li>
-<li>Are there extra villages?</li>
-<li>Any missing/incorrect values for the 2001/2011 codes?</li>
-<li>How is it that we find 48,000 villages instead of 44,000?</li>
-</ul>
-</li>
-</ul>
-
-<h4>
-<a id="prepare-sample-maps" class="anchor" href="#prepare-sample-maps" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Prepare sample maps</h4>
-
-<p>Append the 2011 DCHB data to create thematic visualizations. These visualizations will show us spatial trends for any of the census variables we want.</p>
-
-<h4>
-<a id="prepare-a-web-map" class="anchor" href="#prepare-a-web-map" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Prepare a web map</h4>
-
-<p>More to be discussed on how this is to be done</p>
       </section>
     </div>
 
     <!-- FOOTER  -->
+ 
     <div id="footer_wrap" class="outer">
       <footer class="inner">
-        <p class="copyright">Maharashtra village mapping in R maintained by <a href="https://github.com/craigdsouza">craigdsouza</a></p>
+        <p class="copyright">Contributors to Maharashtra village mapping<br><a href="https://github.com/craigdsouza">Nikhil VJ,</a>
+        <a href="https://github.com/devdattaT">Devdatta Tengshe,</a>
+        <a href="https://github.com/bnamita">Namita Bhatawdekar,</a>
+        <a href="https://github.com/craigdsouza">Craig Dsouza,</a> Jinda Sandbhor, Ajit Dhobale and Vijay Duraisamy<p>
         <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
       </footer>
     </div>

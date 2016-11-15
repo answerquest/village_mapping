@@ -59,7 +59,7 @@ body {
 }
 
 h1, h2, h3, h4, h5, h6 {
-  margin: 10px 0;
+  margin: 0px;
   font-weight: 700;
   color:#222222;
   font-family: 'Lucida Grande', 'Calibri', Helvetica, Arial, sans-serif;
@@ -69,28 +69,29 @@ h1, h2, h3, h4, h5, h6 {
 h1 {
   font-size: 36px;
   font-weight: 700;
+  
 }
 
 h2 {
-  padding-bottom: 10px;
-  font-size: 32px;
+    font-size: 36px;
+    padding-bottom: 10px;
   background: url('../images/bg_hr.png') repeat-x bottom;
-}
+ }
 
 h3 {
-  font-size: 24px;
+  font-size: 28px;
 }
 
 h4 {
-  font-size: 21px;
+  font-size: 24px;
 }
 
 h5 {
-  font-size: 18px;
+  font-size: 21px;
 }
 
 h6 {
-  font-size: 16px;
+  font-size: 18px;
 }
 
 p {
